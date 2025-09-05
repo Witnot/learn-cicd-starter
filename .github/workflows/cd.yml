@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the repository
+      # 1. Checkout repository
       - name: Check out code
         uses: actions/checkout@v4
 
@@ -20,22 +20,24 @@ jobs:
         with:
           go-version: "1.23.0"
 
-      # 3. Build the production application
+      # 3. Build production app
       - name: Build production app
         run: ./scripts/buildprod.sh
 
-      # 4. Set up gcloud CLI and authenticate with service account
+      # 4. Minimal gcloud auth setup
       - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
         with:
           service_account_key: ${{ secrets.GCP_CREDENTIALS }}
           export_default_credentials: true
 
-      # 5. Explicitly set the GCP project (optional but recommended)
-      - name: Set GCP project
-        run: gcloud config set project notely-471203
+      # 5. Verify authentication
+      - name: Verify gcloud authentication
+        run: |
+          gcloud auth list
+          gcloud config list
 
-      # 6. Build and push Docker image using Cloud Build
+      # 6. Build and push Docker image
       - name: Build and Push Docker image
         run: |
           gcloud builds submit \
