@@ -5,6 +5,30 @@ on:
     branches: [main]
 
 jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.0"
+
+      - name: Run unit tests with coverage
+        run: go test -cover ./...
+
+      - name: Install gosec
+        run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+
+      - name: Run security check with gosec
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          gosec ./...
+
   style:
     name: Style
     runs-on: ubuntu-latest
@@ -27,12 +51,5 @@ jobs:
           export PATH=$PATH:$(go env GOPATH)/bin
           staticcheck -f stylish ./... || exit 1
 
-      - name: Install gosec
-        run: go install github.com/securego/gosec/v2/cmd/gosec@latest
-        
-      - name: Run security check with gosec
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          gosec ./...
 
 
