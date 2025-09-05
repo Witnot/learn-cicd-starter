@@ -25,7 +25,7 @@ jobs:
         run: |
           go install honnef.co/go/tools/cmd/staticcheck@latest
           export PATH=$PATH:$(go env GOPATH)/bin
-          staticcheck ./...
+          staticcheck -f stylish ./... || exit 1
 
 
 
