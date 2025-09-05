@@ -6,38 +6,36 @@ on:
 
 jobs:
   deploy:
-    name: Deploy
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Checkout repository
+      # 1. Checkout code
       - name: Check out code
         uses: actions/checkout@v4
 
-      # 2. Set up Go
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.23.0"
+      # 2. Minimal info to confirm the secret is present
+      - name: Check secret presence
+        run: |
+          if [ -z "${{ secrets.GCP_CREDENTIALS }}" ]; then
+            echo "Missing GCP_CREDENTIALS"
+            exit 1
+          fi
+          echo "Secret present"
 
-      # 3. Build production app
-      - name: Build production app
-        run: ./scripts/buildprod.sh
-
-      # 4. Minimal gcloud auth setup
+      # 3. Set up gcloud CLI and authenticate
       - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
         with:
           service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+          project_id: notely-471203
           export_default_credentials: true
 
-      # 5. Verify authentication
-      - name: Verify gcloud authentication
+      # 4. Show account and project to confirm setup
+      - name: Show account and project
         run: |
-          gcloud auth list
-          gcloud config list
+          gcloud config get-value account
+          gcloud config get-value project
 
-      # 6. Build and push Docker image
+      # 5. Build and push Docker image via Cloud Build
       - name: Build and Push Docker image
         run: |
           gcloud builds submit \
