@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the repository
+      # 1. Checkout code
       - name: Check out code
         uses: actions/checkout@v4
 
@@ -24,16 +24,16 @@ jobs:
       - name: Build production app
         run: ./scripts/buildprod.sh
 
-      # 4. Set up gcloud CLI and authenticate
+      # 4. Set up gcloud CLI (v2) and authenticate
       - name: Set up gcloud CLI
-        uses: google-github-actions/setup-gcloud@v1
+        uses: google-github-actions/setup-gcloud@v2
         with:
           service_account_key: ${{ secrets.GCP_CREDENTIALS }}
           export_default_credentials: true
 
-      # 5. Build and push Docker image to Artifact Registry
+      # 5. Build and push Docker image using Cloud Build
       - name: Build and Push Docker image
         run: |
-          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
           gcloud builds submit \
-            --tag us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/notely-ar-repo/notely:latest .
+            --project notely-471203 \
+            --tag us-central1-docker.pkg.dev/notely-471203/notely-ar-repo/notely:latest .
