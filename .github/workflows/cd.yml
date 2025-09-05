@@ -61,9 +61,10 @@ jobs:
 
       # 9. Run migrations
       - name: Run database migrations
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          goose -dir ./migrations postgres "$DATABASE_URL" up
+        run: ./scripts/migrateup.sh
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
 
       # 10. Deploy to Cloud Run
       - name: Deploy to Cloud Run
