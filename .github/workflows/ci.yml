@@ -21,9 +21,11 @@ jobs:
       - name: Check formatting
         run: test -z "$(go fmt ./...)"
 
-      - name: Install staticcheck
+      - name: Install and run staticcheck
         run: |
           go install honnef.co/go/tools/cmd/staticcheck@latest
+          export PATH=$PATH:$(go env GOPATH)/bin
           staticcheck ./...
+
 
 
