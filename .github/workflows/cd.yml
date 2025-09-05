@@ -50,3 +50,12 @@ jobs:
           gcloud builds submit \
             --project notely-471203 \
             --tag us-central1-docker.pkg.dev/notely-471203/notely-ar-repo/notely:latest .
+      # 8. Deploy to Cloud Run
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy notely \
+            --image us-central1-docker.pkg.dev/notely-471203/notely-ar-repo/notely:latest \
+            --region us-central1 \
+            --allow-unauthenticated \
+            --project notely-471203 \
+            --max-instances=4
