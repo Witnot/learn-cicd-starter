@@ -10,13 +10,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout the repository
       - name: Check out code
         uses: actions/checkout@v4
 
+      # 2. Set up Go
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: "1.23.0"
 
+      # 3. Build the production application
       - name: Build production app
         run: ./scripts/buildprod.sh
+
+      # 4. Set up gcloud CLI and authenticate
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+          export_default_credentials: true
+
+      # 5. Build and push Docker image to Artifact Registry
+      - name: Build and Push Docker image
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+          gcloud builds submit \
+            --tag us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/notely-ar-repo/notely:latest .
